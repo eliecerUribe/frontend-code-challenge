@@ -1,36 +1,40 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
+
+import PokemonListing from './components/PokemonListing';
+import { fetchPokemons, filterItems } from './utils';
+
 import './App.css';
 
-const URL_PATH = "https://gist.githubusercontent.com/bar0191/fae6084225b608f25e98b733864a102b/raw/dea83ea9cf4a8a6022bfc89a8ae8df5ab05b6dcc/pokemon.json";
+const App = () => {
+    const [inputValue, setInputValue] = useState("");
+    const [pokemons, setPokemons] = useState([]);
+    const [filteredPokemons, setFilteredPokemons] = useState([]);
 
-const App = () => <>
-    <label htmlFor="maxCP" className="max-cp">
-        <input type="checkbox" id="maxCP" />
-        <small>
-            Maximum Combat Points
-        </small>
-    </label>
-    <input type="text" className="input" placeholder="Pokemon or type" />
-    <div className="loader"></div>
-    <ul className="suggestions">
-        <li>
-            <img src="http://assets.pokemon.com/assets/cms2/img/pokedex/full/025.png" alt="" />
-            <div className="info">
-                <h1>
-                    <span className="hl">Pika</span>chu</h1>
-                <span className="type electric">Electric</span>
-                <span className="type normal">Normal</span>
-            </div>
-        </li>
-        <li>
-            <img src="https://cyndiquil721.files.wordpress.com/2014/02/missingno.png" alt="" />
-            <div className="info">
-                <h1 className="no-results">
-                    No results
-                </h1>
-            </div>
-        </li>
-    </ul>
-</>;
+    useEffect(() => {
+        fetchPokemons(setPokemons);
+
+        if(pokemons.length > 0) {
+            setFilteredPokemons(filterItems({ pokemons, word: inputValue }));
+        }
+    }, [inputValue])
+
+    const handleOnChange = (e) => {
+        const currentValue = e.target.value.trim();
+        setInputValue(currentValue);
+    }
+
+    return(
+        <>
+            <label htmlFor="maxCP" className="max-cp">
+                <input type="checkbox" id="maxCP" />
+                <small>
+                    Maximum Combat Points
+                </small>
+            </label>
+            <input type="text" className="input" placeholder="Pokemon or type" onChange={handleOnChange} />
+            <PokemonListing pokemons={filteredPokemons} inputValue={inputValue} />
+        </>
+    );
+}
 
 export default App;
